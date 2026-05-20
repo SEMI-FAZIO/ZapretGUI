@@ -1,0 +1,44 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+publish/
+*.user
+*.suo
+
+# Visual Studio
+.vs/
+*.vsidx
+.vshistory/
+
+# JetBrains
+.idea/
+*.iml
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Logs
+*.log
+crash*.log
+
+# Local config
+appsettings.local.json
+settings.local.json
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Tests
+TestResults/
+
+# Manifest test artifact (used during local smoke-tests)
+src/ZapretGUI/app.manifest.test
+src/ZapretGUI/app.manifest.real
+
+# Optional artifacts
+*.zip
+release/

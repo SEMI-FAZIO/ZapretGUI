@@ -1,0 +1,283 @@
+<UserControl x:Class="ZapretGUI.Views.DashboardPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:models="clr-namespace:ZapretGUI.Models"
+             Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="36,28,36,28" MaxWidth="1080" HorizontalAlignment="Stretch">
+
+            <!-- Header -->
+            <StackPanel Margin="0,0,0,22">
+                <TextBlock Text="{DynamicResource Dashboard.Title}" Style="{StaticResource H1}" />
+                <TextBlock Text="{DynamicResource Dashboard.Subtitle}"
+                           Style="{StaticResource Caption}" Margin="0,4,0,0" />
+            </StackPanel>
+
+            <!-- Hero status card -->
+            <Border Style="{StaticResource HeroCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                            <Border CornerRadius="999"
+                                    Padding="9,4"
+                                    Background="{Binding Status.RunState, Converter={StaticResource RunStateBrush}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="6" Height="6" Fill="White" VerticalAlignment="Center" />
+                                    <TextBlock Margin="6,0,0,0" FontSize="11" FontWeight="SemiBold" Foreground="White"
+                                               Text="{Binding Status.RunState, Converter={StaticResource RunStateText}}" />
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Margin="14,0,0,0" Style="{StaticResource Caption}" VerticalAlignment="Center"
+                                       Text="{Binding ServiceText}" />
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding StatusBig}" FontSize="38" FontWeight="SemiBold"
+                                   Foreground="{StaticResource TextBrush}" />
+                        <TextBlock Text="{Binding StatusSub}" Margin="0,4,0,0" Style="{StaticResource Body}"
+                                   Foreground="{StaticResource TextMutedBrush}" />
+
+                        <StackPanel Orientation="Horizontal" Margin="0,22,0,0">
+                            <Button Style="{StaticResource PrimaryButton}"
+                                    Command="{Binding StartCommand}"
+                                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}, ConverterParameter=invert}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBlock Text="{DynamicResource Dashboard.Start}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource DangerButton}"
+                                    Command="{Binding StopCommand}" Margin="0"
+                                    Visibility="{Binding IsRunning, Converter={StaticResource BoolToVis}}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBlock Text="{DynamicResource Dashboard.Stop}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource ButtonBase}" Margin="10,0,0,0"
+                                    Command="{Binding InstallServiceCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="13" VerticalAlignment="Center" />
+                                    <TextBlock Text="{DynamicResource Dashboard.InstallService}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource GhostButton}" Margin="6,0,0,0"
+                                    Command="{Binding RemoveServiceCommand}">
+                                <TextBlock Text="{DynamicResource Dashboard.RemoveService}" />
+                            </Button>
+                        </StackPanel>
+
+                        <Border Margin="0,16,0,0" Padding="14,10"
+                                CornerRadius="10"
+                                Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                Visibility="{Binding LastMessage, Converter={StaticResource StringEmpty}}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="12"
+                                           Foreground="{StaticResource InfoBrush}" VerticalAlignment="Center" />
+                                <TextBlock Text="{Binding LastMessage}" Margin="10,0,0,0" Style="{StaticResource Caption}"
+                                           VerticalAlignment="Center" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Right: current strategy -->
+                    <Border Grid.Column="1" VerticalAlignment="Top"
+                            Width="280" Padding="18"
+                            CornerRadius="12"
+                            Background="{StaticResource BgDeepBrush}"
+                            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Dashboard.CurrentStrategy}" Style="{StaticResource MicroCaption}" />
+                            <TextBlock Text="{Binding SelectedStrategyDisplay}"
+                                       Style="{StaticResource H3}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                            <TextBlock Text="{DynamicResource Dashboard.StrategyHint}"
+                                       Style="{StaticResource Caption}" Margin="0,8,0,0" TextWrapping="Wrap" />
+                            <Button Style="{StaticResource ButtonBase}" Margin="0,16,0,0"
+                                    HorizontalAlignment="Stretch"
+                                    Command="{Binding ChooseStrategyCommand}">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="{DynamicResource Dashboard.PickStrategy}" />
+                                    <TextBlock Text="" Margin="8,0,0,0" FontFamily="{StaticResource IconFont}" FontSize="11" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Quick toggles -->
+            <TextBlock Text="{DynamicResource Dashboard.QuickSettings}" Style="{StaticResource MicroCaption}" Margin="2,28,0,10" />
+
+            <UniformGrid Columns="3">
+                <UniformGrid.Resources>
+                    <Style TargetType="Border" BasedOn="{StaticResource Card}">
+                        <Setter Property="Margin" Value="0,0,12,0" />
+                    </Style>
+                </UniformGrid.Resources>
+
+                <!-- Game filter -->
+                <Border>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource AccentSoftBrush}">
+                                <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="16"
+                                           Foreground="{StaticResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Dashboard.GameFilter}" Style="{StaticResource H3}" />
+                                <TextBlock Text="{Binding GameFilterText}" Style="{StaticResource Caption}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource SegmentContainer}" Margin="0,14,0,0">
+                            <UniformGrid Columns="4">
+                                <RadioButton GroupName="GameFilter" Content="Off" Style="{StaticResource SegmentRadio}"
+                                             IsChecked="{Binding Status.GameFilter, Converter={StaticResource EqualsConv}, ConverterParameter=Disabled, Mode=OneWay}"
+                                             Click="OnGameFilterOff" />
+                                <RadioButton GroupName="GameFilter" Content="TCP+UDP" Style="{StaticResource SegmentRadio}"
+                                             IsChecked="{Binding Status.GameFilter, Converter={StaticResource EqualsConv}, ConverterParameter=All, Mode=OneWay}"
+                                             Click="OnGameFilterAll" />
+                                <RadioButton GroupName="GameFilter" Content="TCP" Style="{StaticResource SegmentRadio}"
+                                             IsChecked="{Binding Status.GameFilter, Converter={StaticResource EqualsConv}, ConverterParameter=Tcp, Mode=OneWay}"
+                                             Click="OnGameFilterTcp" />
+                                <RadioButton GroupName="GameFilter" Content="UDP" Style="{StaticResource SegmentRadio}"
+                                             IsChecked="{Binding Status.GameFilter, Converter={StaticResource EqualsConv}, ConverterParameter=Udp, Mode=OneWay}"
+                                             Click="OnGameFilterUdp" />
+                            </UniformGrid>
+                        </Border>
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,8,0,0" TextWrapping="Wrap"
+                                   Text="{DynamicResource Dashboard.GameFilter.Hint}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- IPSet -->
+                <Border>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource InfoSoftBrush}">
+                                <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="16"
+                                           Foreground="{StaticResource InfoBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Dashboard.Ipset}" Style="{StaticResource H3}" />
+                                <TextBlock Text="{Binding IpsetText}" Style="{StaticResource Caption}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Style="{StaticResource SegmentContainer}" Margin="0,14,0,0">
+                            <UniformGrid Columns="3">
+                                <RadioButton GroupName="Ipset" Content="None" Style="{StaticResource SegmentRadio}"
+                                             IsChecked="{Binding Status.Ipset, Converter={StaticResource EqualsConv}, ConverterParameter=None, Mode=OneWay}"
+                                             Click="OnIpsetNone" />
+                                <RadioButton GroupName="Ipset" Content="Список" Style="{StaticResource SegmentRadio}"
+                                             IsChecked="{Binding Status.Ipset, Converter={StaticResource EqualsConv}, ConverterParameter=Loaded, Mode=OneWay}"
+                                             Click="OnIpsetLoaded" />
+                                <RadioButton GroupName="Ipset" Content="Любой" Style="{StaticResource SegmentRadio}"
+                                             IsChecked="{Binding Status.Ipset, Converter={StaticResource EqualsConv}, ConverterParameter=Any, Mode=OneWay}"
+                                             Click="OnIpsetAny" />
+                            </UniformGrid>
+                        </Border>
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,8,0,0" TextWrapping="Wrap"
+                                   Text="{DynamicResource Dashboard.Ipset.Hint}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Auto-update -->
+                <Border Margin="0">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="36" Height="36" CornerRadius="9" Background="{StaticResource SuccessSoftBrush}">
+                                <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="16"
+                                           Foreground="{StaticResource SuccessBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{DynamicResource Dashboard.AutoUpdate}" Style="{StaticResource H3}" />
+                                <TextBlock Text="{DynamicResource Dashboard.AutoUpdate.Sub}" Style="{StaticResource Caption}" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Grid Margin="0,16,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="{DynamicResource Dashboard.AutoUpdate.Toggle}"
+                                       Style="{StaticResource Body}" VerticalAlignment="Center" />
+                            <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                          IsChecked="{Binding Status.AutoUpdateEnabled, Mode=OneWay}"
+                                          Click="OnAutoUpdateToggle" />
+                        </Grid>
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,10,0,0" TextWrapping="Wrap"
+                                   Text="{DynamicResource Dashboard.AutoUpdate.Hint}" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- Info row -->
+            <TextBlock Text="{DynamicResource Dashboard.SystemState}" Style="{StaticResource MicroCaption}" Margin="2,28,0,10" />
+
+            <UniformGrid Columns="3">
+                <UniformGrid.Resources>
+                    <Style TargetType="Border" BasedOn="{StaticResource Card}">
+                        <Setter Property="Margin" Value="0,0,12,0" />
+                    </Style>
+                </UniformGrid.Resources>
+
+                <Border>
+                    <StackPanel>
+                        <TextBlock Text="winws.exe" Style="{StaticResource MicroCaption}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Ellipse Width="10" Height="10" VerticalAlignment="Center"
+                                     Fill="{Binding Status.WinwsRunning, Converter={StaticResource RunStateBrush}}" />
+                            <TextBlock Margin="10,0,0,0" Style="{StaticResource Body}" FontWeight="SemiBold"
+                                       Text="{Binding WinwsText}" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0"
+                                   Text="{DynamicResource Dashboard.Winws.Sub}" />
+                    </StackPanel>
+                </Border>
+
+                <Border>
+                    <StackPanel>
+                        <TextBlock Text="WinDivert" Style="{StaticResource MicroCaption}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Ellipse Width="10" Height="10" VerticalAlignment="Center"
+                                     Fill="{Binding Status.WinDivertActive, Converter={StaticResource RunStateBrush}}" />
+                            <TextBlock Margin="10,0,0,0" Style="{StaticResource Body}" FontWeight="SemiBold"
+                                       Text="{Binding WinDivertText}" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0"
+                                   Text="{DynamicResource Dashboard.WinDivert.Sub}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Margin="0">
+                    <StackPanel>
+                        <TextBlock Text="Сервис zapret" Style="{StaticResource MicroCaption}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Ellipse Width="10" Height="10" VerticalAlignment="Center"
+                                     Fill="{Binding Status.ServiceInstalled, Converter={StaticResource RunStateBrush}}" />
+                            <TextBlock Margin="10,0,0,0" Style="{StaticResource Body}" FontWeight="SemiBold"
+                                       Text="{Binding ServiceInstalledText}" />
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,4,0,0"
+                                   Text="{DynamicResource Dashboard.Service.Sub}" />
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

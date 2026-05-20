@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore src/ZapretGUI/ZapretGUI.csproj
+
+      - name: Build
+        run: dotnet build src/ZapretGUI/ZapretGUI.csproj -c Release --no-restore
+
+      - name: Publish (framework-dependent single file)
+        run: |
+          dotnet publish src/ZapretGUI/ZapretGUI.csproj `
+            -c Release -r win-x64 `
+            --self-contained false `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=embedded `
+            -o publish-fdd
+
+      - name: Publish (self-contained single file)
+        run: |
+          dotnet publish src/ZapretGUI/ZapretGUI.csproj `
+            -c Release -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=embedded `
+            -o publish-sc
+
+      - name: Upload framework-dependent artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZapretGUI-net8
+          path: publish-fdd/ZapretGUI.exe
+
+      - name: Upload self-contained artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZapretGUI-portable
+          path: publish-sc/ZapretGUI.exe

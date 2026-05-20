@@ -1,0 +1,177 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Navigation -->
+    <s:String x:Key="Nav.Dashboard">Dashboard</s:String>
+    <s:String x:Key="Nav.Strategies">Strategies</s:String>
+    <s:String x:Key="Nav.Lists">Lists</s:String>
+    <s:String x:Key="Nav.Diagnostics">Diagnostics</s:String>
+    <s:String x:Key="Nav.Logs">Logs</s:String>
+    <s:String x:Key="Nav.Settings">Settings</s:String>
+    <s:String x:Key="Nav.Menu">MENU</s:String>
+
+    <!-- Common -->
+    <s:String x:Key="Common.Save">Save</s:String>
+    <s:String x:Key="Common.Cancel">Cancel</s:String>
+    <s:String x:Key="Common.Close">Close</s:String>
+    <s:String x:Key="Common.Confirm">Confirm</s:String>
+    <s:String x:Key="Common.Yes">Yes</s:String>
+    <s:String x:Key="Common.No">No</s:String>
+    <s:String x:Key="Common.Refresh">Refresh</s:String>
+    <s:String x:Key="Common.Open">Open</s:String>
+    <s:String x:Key="Common.Folder">Folder</s:String>
+    <s:String x:Key="Common.Browse">Browse…</s:String>
+    <s:String x:Key="Common.Loading">Loading…</s:String>
+    <s:String x:Key="Common.UnsavedChanges">• unsaved changes</s:String>
+    <s:String x:Key="Common.NotSelected">Not selected</s:String>
+
+    <!-- Status -->
+    <s:String x:Key="Status.Running.Service">Running (service)</s:String>
+    <s:String x:Key="Status.Running.Standalone">Running (standalone)</s:String>
+    <s:String x:Key="Status.Stopped">Stopped</s:String>
+    <s:String x:Key="Status.BypassActive">Bypass is active</s:String>
+    <s:String x:Key="Status.BypassDisabled">Bypass is off</s:String>
+    <s:String x:Key="Status.AsService">Running as Windows service</s:String>
+    <s:String x:Key="Status.AsStandalone">Running as standalone winws.exe</s:String>
+    <s:String x:Key="Status.PickStrategy">Pick a strategy and hit "Start"</s:String>
+
+    <!-- Dashboard -->
+    <s:String x:Key="Dashboard.Title">Dashboard</s:String>
+    <s:String x:Key="Dashboard.Subtitle">DPI bypass control, status and quick settings</s:String>
+    <s:String x:Key="Dashboard.Start">Start bypass</s:String>
+    <s:String x:Key="Dashboard.Stop">Stop</s:String>
+    <s:String x:Key="Dashboard.InstallService">Install as service</s:String>
+    <s:String x:Key="Dashboard.RemoveService">Remove service</s:String>
+    <s:String x:Key="Dashboard.CurrentStrategy">CURRENT STRATEGY</s:String>
+    <s:String x:Key="Dashboard.PickStrategy">Pick a strategy</s:String>
+    <s:String x:Key="Dashboard.StrategyHint">A strategy determines how winws.exe rewrites packets to bypass DPI.</s:String>
+    <s:String x:Key="Dashboard.QuickSettings">QUICK SETTINGS</s:String>
+    <s:String x:Key="Dashboard.SystemState">SYSTEM STATE</s:String>
+    <s:String x:Key="Dashboard.GameFilter">Game filter</s:String>
+    <s:String x:Key="Dashboard.GameFilter.Off">Game filter is off</s:String>
+    <s:String x:Key="Dashboard.GameFilter.All">Game filter — TCP+UDP</s:String>
+    <s:String x:Key="Dashboard.GameFilter.Tcp">Game filter — TCP only</s:String>
+    <s:String x:Key="Dashboard.GameFilter.Udp">Game filter — UDP only</s:String>
+    <s:String x:Key="Dashboard.GameFilter.Hint">Range 1024-65535 for games (CoD, BF, etc.)</s:String>
+    <s:String x:Key="Dashboard.Ipset">IPSet filter</s:String>
+    <s:String x:Key="Dashboard.Ipset.Loaded">IPSet — loaded list</s:String>
+    <s:String x:Key="Dashboard.Ipset.None">IPSet — disabled</s:String>
+    <s:String x:Key="Dashboard.Ipset.Any">IPSet — any IP</s:String>
+    <s:String x:Key="Dashboard.Ipset.Hint">"List" — only IPs from ipset-all.txt</s:String>
+    <s:String x:Key="Dashboard.AutoUpdate">Auto-update</s:String>
+    <s:String x:Key="Dashboard.AutoUpdate.Sub">Check for new releases</s:String>
+    <s:String x:Key="Dashboard.AutoUpdate.Toggle">Check on startup</s:String>
+    <s:String x:Key="Dashboard.AutoUpdate.Hint">Opens the release page when a new version is available</s:String>
+    <s:String x:Key="Dashboard.Winws.Sub">DPI bypass process</s:String>
+    <s:String x:Key="Dashboard.WinDivert.Sub">Packet capture driver</s:String>
+    <s:String x:Key="Dashboard.Service.Sub">Auto-start with Windows</s:String>
+
+    <!-- Strategies -->
+    <s:String x:Key="Strategies.Title">Strategies</s:String>
+    <s:String x:Key="Strategies.Subtitle">Pick a desync strategy for winws.exe. If the default doesn't help, try ALT or Fake TLS variants.</s:String>
+    <s:String x:Key="Strategies.Search">Search strategies…</s:String>
+    <s:String x:Key="Strategies.Args">winws.exe arguments</s:String>
+    <s:String x:Key="Strategies.NotSelected">No strategy selected</s:String>
+    <s:String x:Key="Strategies.Hint">Select a strategy on the left to see the winws.exe arguments.</s:String>
+    <s:String x:Key="Strategies.Run">Start</s:String>
+    <s:String x:Key="Strategies.Install">Install as service</s:String>
+    <s:String x:Key="Strategies.OpenFolder">Open folder</s:String>
+
+    <!-- Lists -->
+    <s:String x:Key="Lists.Title">Lists</s:String>
+    <s:String x:Key="Lists.Subtitle">Custom domain lists and IPSet/hosts updates</s:String>
+    <s:String x:Key="Lists.Repo">Repository lists</s:String>
+    <s:String x:Key="Lists.RepoHint">ipset-all.txt and hosts are fetched from Flowseal/zapret-discord-youtube on GitHub.</s:String>
+    <s:String x:Key="Lists.UpdateIpset">Update ipset-all</s:String>
+    <s:String x:Key="Lists.CheckHosts">Check hosts</s:String>
+    <s:String x:Key="Lists.UserLists">USER LISTS</s:String>
+    <s:String x:Key="Lists.General">Custom domains</s:String>
+    <s:String x:Key="Lists.GeneralHint">list-general-user.txt — domains to push through the bypass</s:String>
+    <s:String x:Key="Lists.Exclude">Excluded domains</s:String>
+    <s:String x:Key="Lists.ExcludeHint">list-exclude-user.txt — domains to skip from the bypass</s:String>
+    <s:String x:Key="Lists.IpExclude">IP exclusions</s:String>
+    <s:String x:Key="Lists.IpExcludeHint">ipset-exclude-user.txt — IPs/subnets to skip</s:String>
+
+    <!-- Diagnostics -->
+    <s:String x:Key="Diagnostics.Title">Diagnostics</s:String>
+    <s:String x:Key="Diagnostics.Subtitle">Check for conflicts and zapret prerequisites</s:String>
+    <s:String x:Key="Diagnostics.RunTitle">Run system check</s:String>
+    <s:String x:Key="Diagnostics.RunHint">Checks conflicting services (Killer, Adguard, Check Point, VPN, GoodbyeDPI), Base Filtering Engine, TCP timestamps, DNS, hosts.</s:String>
+    <s:String x:Key="Diagnostics.Run">Run diagnostics</s:String>
+    <s:String x:Key="Diagnostics.ClearDiscord">Clear Discord cache</s:String>
+    <s:String x:Key="Diagnostics.PsTests">PowerShell tests</s:String>
+    <s:String x:Key="Diagnostics.Empty">Run a system check</s:String>
+    <s:String x:Key="Diagnostics.EmptyHint">Results will appear here after you press "Run diagnostics"</s:String>
+    <s:String x:Key="Diagnostics.ConnTest">Connection test</s:String>
+    <s:String x:Key="Diagnostics.ConnTestHint">Probes discord.com, youtube.com, google.com and measures latency</s:String>
+    <s:String x:Key="Diagnostics.Connect">Test connection</s:String>
+
+    <!-- Logs -->
+    <s:String x:Key="Logs.Title">winws.exe logs</s:String>
+    <s:String x:Key="Logs.Subtitle">Live output of the bypass process</s:String>
+    <s:String x:Key="Logs.Empty">Logs appear when winws.exe is launched from this GUI with stdout capture enabled.</s:String>
+    <s:String x:Key="Logs.Clear">Clear</s:String>
+    <s:String x:Key="Logs.Pause">Pause</s:String>
+    <s:String x:Key="Logs.Resume">Resume</s:String>
+    <s:String x:Key="Logs.Save">Save to file</s:String>
+    <s:String x:Key="Logs.AutoScroll">Auto-scroll</s:String>
+
+    <!-- Settings -->
+    <s:String x:Key="Settings.Title">Settings</s:String>
+    <s:String x:Key="Settings.Subtitle">Version, updates, paths and links</s:String>
+    <s:String x:Key="Settings.Version">Zapret version</s:String>
+    <s:String x:Key="Settings.Installed">Installed:</s:String>
+    <s:String x:Key="Settings.CheckUpdate">Check for updates</s:String>
+    <s:String x:Key="Settings.OpenRelease">Open release page</s:String>
+    <s:String x:Key="Settings.AutoUpdate">Auto-update check</s:String>
+    <s:String x:Key="Settings.AutoUpdateHint">Probes GitHub for new releases on startup. Opens the download page when a new version is available.</s:String>
+    <s:String x:Key="Settings.Behavior">Behavior</s:String>
+    <s:String x:Key="Settings.StartWithWindows">Launch with Windows</s:String>
+    <s:String x:Key="Settings.StartWithWindowsHint">Add ZapretGUI to Windows startup (HKCU\Run).</s:String>
+    <s:String x:Key="Settings.StartMinimized">Start minimized</s:String>
+    <s:String x:Key="Settings.AutoStartBypass">Auto-start bypass</s:String>
+    <s:String x:Key="Settings.AutoStartBypassHint">Start the saved strategy automatically when the GUI starts.</s:String>
+    <s:String x:Key="Settings.Appearance">Appearance</s:String>
+    <s:String x:Key="Settings.Theme">Theme</s:String>
+    <s:String x:Key="Settings.Theme.Dark">Dark</s:String>
+    <s:String x:Key="Settings.Theme.Light">Light</s:String>
+    <s:String x:Key="Settings.Theme.System">System</s:String>
+    <s:String x:Key="Settings.Language">Language</s:String>
+    <s:String x:Key="Settings.Paths">Paths</s:String>
+    <s:String x:Key="Settings.ZapretRoot">ZAPRET ROOT</s:String>
+    <s:String x:Key="Settings.Logs">Logs</s:String>
+    <s:String x:Key="Settings.ChangePath">Change path</s:String>
+    <s:String x:Key="Settings.About">About</s:String>
+    <s:String x:Key="Settings.GitHub">GitHub</s:String>
+    <s:String x:Key="Settings.AboutText">A modern GUI for the DPI bypass. All settings are compatible with the original .bat scripts.</s:String>
+
+    <!-- Install wizard -->
+    <s:String x:Key="Install.Title">Install Zapret</s:String>
+    <s:String x:Key="Install.Subtitle">The bypass tool was not found next to the GUI</s:String>
+    <s:String x:Key="Install.Description">ZapretGUI is a frontend for Flowseal/zapret-discord-youtube. The bypass itself (winws.exe, WinDivert, strategies) is installed separately. Download the latest version from GitHub and unpack it next to the GUI?</s:String>
+    <s:String x:Key="Install.PathLabel">Install to:</s:String>
+    <s:String x:Key="Install.Download">Download and install</s:String>
+    <s:String x:Key="Install.Manual">Pick existing folder</s:String>
+    <s:String x:Key="Install.OpenSite">Open GitHub</s:String>
+    <s:String x:Key="Install.Downloading">Downloading…</s:String>
+    <s:String x:Key="Install.Extracting">Extracting…</s:String>
+    <s:String x:Key="Install.Done">Done! Restart the GUI.</s:String>
+    <s:String x:Key="Install.Failed">Installation failed:</s:String>
+    <s:String x:Key="Install.RestartHint">Close and reopen ZapretGUI to continue.</s:String>
+    <s:String x:Key="Install.Restart">Restart</s:String>
+
+    <!-- Connection test -->
+    <s:String x:Key="Conn.Title">Connection test</s:String>
+    <s:String x:Key="Conn.Run">Run test</s:String>
+    <s:String x:Key="Conn.Status.Ok">Reachable</s:String>
+    <s:String x:Key="Conn.Status.Fail">Unreachable</s:String>
+    <s:String x:Key="Conn.Status.Pending">Probing…</s:String>
+
+    <!-- Confirmations -->
+    <s:String x:Key="Confirm.RemoveService.Title">Remove zapret service?</s:String>
+    <s:String x:Key="Confirm.RemoveService.Text">The service will be stopped and deleted. The bypass will stop working. This is safe — you can reinstall later.</s:String>
+    <s:String x:Key="Confirm.ClearCache.Title">Clear Discord cache?</s:String>
+    <s:String x:Key="Confirm.ClearCache.Text">Discord will be closed and its caches (Cache, Code Cache, GPUCache) deleted. Discord will restart with a clean state.</s:String>
+
+</ResourceDictionary>

@@ -1,0 +1,207 @@
+<UserControl x:Class="ZapretGUI.Views.DiagnosticsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:svc="clr-namespace:ZapretGUI.Services"
+             Background="Transparent">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="36,28,36,28">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.Row="0" Margin="0,0,0,18">
+                <TextBlock Text="{DynamicResource Diagnostics.Title}" Style="{StaticResource H1}" />
+                <TextBlock Text="{DynamicResource Diagnostics.Subtitle}" Style="{StaticResource Caption}" Margin="0,4,0,0" />
+            </StackPanel>
+
+            <!-- System check action card -->
+            <Border Grid.Row="1" Style="{StaticResource HeroCard}" Margin="0,0,0,18">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{DynamicResource Diagnostics.RunTitle}" Style="{StaticResource H2}" />
+                        <TextBlock Margin="0,6,0,0" Style="{StaticResource Body}"
+                                   Foreground="{StaticResource TextMutedBrush}"
+                                   Text="{DynamicResource Diagnostics.RunHint}" />
+                        <TextBlock Margin="0,8,0,0" Style="{StaticResource Caption}"
+                                   Text="{Binding Summary}"
+                                   Visibility="{Binding Summary, Converter={StaticResource StringEmpty}}" />
+                        <TextBlock Margin="0,4,0,0" Style="{StaticResource Caption}"
+                                   Text="{Binding Message}"
+                                   Foreground="{StaticResource InfoBrush}"
+                                   Visibility="{Binding Message, Converter={StaticResource StringEmpty}}" />
+                    </StackPanel>
+
+                    <Button Grid.Column="1" Style="{StaticResource GhostButton}" Command="{Binding RunTestsCommand}" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock Text="{DynamicResource Diagnostics.PsTests}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="2" Style="{StaticResource ButtonBase}" Command="{Binding ClearDiscordCacheCommand}" Margin="0,0,8,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock Text="{DynamicResource Diagnostics.ClearDiscord}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="3" Style="{StaticResource PrimaryButton}" Command="{Binding RunCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="13" VerticalAlignment="Center" />
+                            <TextBlock Text="{DynamicResource Diagnostics.Run}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- Connection test card -->
+            <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,0,0,18">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{DynamicResource Diagnostics.ConnTest}" Style="{StaticResource H3}" />
+                            <TextBlock Text="{DynamicResource Diagnostics.ConnTestHint}"
+                                       Style="{StaticResource Caption}" Margin="0,4,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource ButtonBase}" Command="{Binding ConnectionTestCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="12" VerticalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource Diagnostics.Connect}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <ItemsControl ItemsSource="{Binding Probes}" Margin="0,16,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><UniformGrid Columns="4" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="{StaticResource BgDeepBrush}"
+                                        BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="10" Padding="14,12" Margin="0,0,10,0">
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Title}" Style="{StaticResource Body}" FontWeight="SemiBold" />
+                                            <Ellipse Width="8" Height="8" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                <Ellipse.Style>
+                                                    <Style TargetType="Ellipse">
+                                                        <Setter Property="Fill" Value="{DynamicResource TextSubtleBrush}" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Ok">
+                                                                <Setter Property="Fill" Value="{DynamicResource SuccessBrush}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Fail">
+                                                                <Setter Property="Fill" Value="{DynamicResource DangerBrush}" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Pending">
+                                                                <Setter Property="Fill" Value="{DynamicResource WarningBrush}" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Ellipse.Style>
+                                            </Ellipse>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Host}" Style="{StaticResource Caption}" FontFamily="{StaticResource MonoFont}" Margin="0,4,0,0" />
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource Caption}">
+                                            <Run Text="HTTPS:" Foreground="{StaticResource TextSubtleBrush}" />
+                                            <Run Text="{Binding HttpLatencyMs, FallbackValue='—', TargetNullValue='—', StringFormat={}{0} ms}" />
+                                        </TextBlock>
+                                        <TextBlock Style="{StaticResource Caption}">
+                                            <Run Text="Ping:" Foreground="{StaticResource TextSubtleBrush}" />
+                                            <Run Text="{Binding PingMs, FallbackValue='—', TargetNullValue='—', StringFormat={}{0} ms}" />
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Detail}" Margin="0,4,0,0" Style="{StaticResource Caption}"
+                                                   Foreground="{StaticResource TextSubtleBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Visibility="{Binding Detail, Converter={StaticResource StringEmpty}}" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Empty hint -->
+            <Border Grid.Row="3"
+                    Style="{StaticResource Card}"
+                    Visibility="{Binding Results.Count, Converter={StaticResource CountToVis}, ConverterParameter=empty}">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,40,0,40">
+                    <Border Width="56" Height="56" CornerRadius="14" Background="{StaticResource AccentSoftBrush}" HorizontalAlignment="Center">
+                        <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="24"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="{DynamicResource Diagnostics.Empty}"
+                               Style="{StaticResource H3}" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                    <TextBlock Text="{DynamicResource Diagnostics.EmptyHint}"
+                               Style="{StaticResource Caption}" HorizontalAlignment="Center" Margin="0,6,0,0"
+                               TextAlignment="Center" MaxWidth="380" />
+                </StackPanel>
+            </Border>
+
+            <!-- Results -->
+            <ItemsControl Grid.Row="4" ItemsSource="{Binding Results}"
+                          Visibility="{Binding Results.Count, Converter={StaticResource CountToVis}}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="{StaticResource SurfaceBrush}"
+                                BorderBrush="{StaticResource BorderBrush}" BorderThickness="1"
+                                CornerRadius="12" Padding="18,14" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="36" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Width="28" Height="28" CornerRadius="8"
+                                        Background="{Binding Level, Converter={StaticResource DiagLevelBg}}"
+                                        HorizontalAlignment="Left" VerticalAlignment="Top">
+                                    <TextBlock Text="{Binding Level, Converter={StaticResource DiagLevelIcon}}"
+                                               FontFamily="{StaticResource IconFont}" FontSize="13"
+                                               Foreground="{Binding Level, Converter={StaticResource DiagLevelBrush}}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+
+                                <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource H3}" />
+                                    <TextBlock Text="{Binding Message}" Style="{StaticResource Body}"
+                                               Foreground="{StaticResource TextMutedBrush}" Margin="0,3,0,0" />
+                                    <TextBlock Text="{Binding Hint}" Style="{StaticResource Caption}" Margin="0,4,0,0"
+                                               TextWrapping="Wrap"
+                                               Visibility="{Binding Hint, Converter={StaticResource StringEmpty}}" />
+                                </StackPanel>
+
+                                <Border Grid.Column="2" Style="{StaticResource Badge}"
+                                        Background="{Binding Level, Converter={StaticResource DiagLevelBg}}"
+                                        VerticalAlignment="Top">
+                                    <TextBlock Style="{StaticResource BadgeText}"
+                                               Foreground="{Binding Level, Converter={StaticResource DiagLevelBrush}}"
+                                               Text="{Binding Level}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,52 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Segoe Fluent Icons glyphs (Unicode) -->
+    <sys:String x:Key="IcoDashboard">&#xE80F;</sys:String>
+    <sys:String x:Key="IcoStrategy">&#xE945;</sys:String>
+    <sys:String x:Key="IcoList">&#xE71D;</sys:String>
+    <sys:String x:Key="IcoDiagnostics">&#xE9D9;</sys:String>
+    <sys:String x:Key="IcoSettings">&#xE713;</sys:String>
+    <sys:String x:Key="IcoPlay">&#xE768;</sys:String>
+    <sys:String x:Key="IcoStop">&#xE71A;</sys:String>
+    <sys:String x:Key="IcoPause">&#xE769;</sys:String>
+    <sys:String x:Key="IcoMinimize">&#xE921;</sys:String>
+    <sys:String x:Key="IcoMaximize">&#xE922;</sys:String>
+    <sys:String x:Key="IcoRestore">&#xE923;</sys:String>
+    <sys:String x:Key="IcoClose">&#xE8BB;</sys:String>
+    <sys:String x:Key="IcoCheck">&#xE73E;</sys:String>
+    <sys:String x:Key="IcoWarning">&#xE7BA;</sys:String>
+    <sys:String x:Key="IcoError">&#xE783;</sys:String>
+    <sys:String x:Key="IcoInfo">&#xE946;</sys:String>
+    <sys:String x:Key="IcoRefresh">&#xE72C;</sys:String>
+    <sys:String x:Key="IcoDownload">&#xE896;</sys:String>
+    <sys:String x:Key="IcoUpload">&#xE898;</sys:String>
+    <sys:String x:Key="IcoShield">&#xEA18;</sys:String>
+    <sys:String x:Key="IcoGame">&#xE7FC;</sys:String>
+    <sys:String x:Key="IcoGlobe">&#xE774;</sys:String>
+    <sys:String x:Key="IcoSave">&#xE74E;</sys:String>
+    <sys:String x:Key="IcoEdit">&#xE70F;</sys:String>
+    <sys:String x:Key="IcoFolder">&#xE8B7;</sys:String>
+    <sys:String x:Key="IcoLightning">&#xE945;</sys:String>
+    <sys:String x:Key="IcoCircle">&#xEA3A;</sys:String>
+    <sys:String x:Key="IcoChevronRight">&#xE76C;</sys:String>
+    <sys:String x:Key="IcoChevronDown">&#xE70D;</sys:String>
+    <sys:String x:Key="IcoTrash">&#xE74D;</sys:String>
+    <sys:String x:Key="IcoZap">&#xEC4A;</sys:String>
+    <sys:String x:Key="IcoSearch">&#xE721;</sys:String>
+    <sys:String x:Key="IcoFilter">&#xE71C;</sys:String>
+    <sys:String x:Key="IcoEye">&#xE890;</sys:String>
+    <sys:String x:Key="IcoTerminal">&#xE756;</sys:String>
+    <sys:String x:Key="IcoCleanup">&#xE74D;</sys:String>
+
+    <Style x:Key="IconText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource IconFont}" />
+        <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="FontSize" Value="16" />
+    </Style>
+
+</ResourceDictionary>

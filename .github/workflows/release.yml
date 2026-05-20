@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag (e.g. v1.0.1)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          $tag = if ($env:GITHUB_REF -like 'refs/tags/v*') { $env:GITHUB_REF -replace '^refs/tags/v', '' } else { '${{ github.event.inputs.tag }}' -replace '^v', '' }
+          echo "tag=$tag" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore src/ZapretGUI/ZapretGUI.csproj
+
+      - name: Publish framework-dependent
+        run: |
+          dotnet publish src/ZapretGUI/ZapretGUI.csproj `
+            -c Release -r win-x64 `
+            --self-contained false `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=embedded `
+            -p:Version=${{ steps.ver.outputs.tag }} `
+            -o publish-fdd
+          Rename-Item publish-fdd/ZapretGUI.exe ZapretGUI-${{ steps.ver.outputs.tag }}-net8.exe
+
+      - name: Publish self-contained portable
+        run: |
+          dotnet publish src/ZapretGUI/ZapretGUI.csproj `
+            -c Release -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=embedded `
+            -p:Version=${{ steps.ver.outputs.tag }} `
+            -o publish-sc
+          Rename-Item publish-sc/ZapretGUI.exe ZapretGUI-${{ steps.ver.outputs.tag }}-portable.exe
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          name: ZapretGUI v${{ steps.ver.outputs.tag }}
+          generate_release_notes: true
+          files: |
+            publish-fdd/ZapretGUI-${{ steps.ver.outputs.tag }}-net8.exe
+            publish-sc/ZapretGUI-${{ steps.ver.outputs.tag }}-portable.exe

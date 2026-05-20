@@ -1,0 +1,149 @@
+<Window x:Class="ZapretGUI.Views.InstallWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        Title="Zapret GUI — Установка"
+        Icon="pack://application:,,,/app.ico"
+        Width="640" Height="640"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        FontFamily="{DynamicResource UiFont}"
+        ResizeMode="NoResize"
+        UseLayoutRounding="True">
+
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="36" CornerRadius="0"
+                            GlassFrameThickness="0" ResizeBorderThickness="0"
+                            UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
+    <Border Background="{DynamicResource BgBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="36" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Title bar -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="14,0,0,0" VerticalAlignment="Center">
+                    <Border Width="22" Height="22" CornerRadius="6" Background="{DynamicResource AccentGradientBrush}">
+                        <TextBlock Text="" FontFamily="{DynamicResource IconFont}" Foreground="White"
+                                   FontSize="12"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <TextBlock Text="Zapret GUI" Margin="10,0,0,0" Style="{DynamicResource Body}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                </StackPanel>
+                <Button Grid.Column="1" Style="{DynamicResource TitleBarCloseButton}" Content="" Click="OnClose" />
+            </Grid>
+
+            <!-- Body -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="44,12,44,32">
+
+                    <Border Width="76" Height="76" CornerRadius="20"
+                            Background="{DynamicResource AccentGradientBrush}"
+                            HorizontalAlignment="Center" Margin="0,12,0,18">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#7C5CFF" Opacity="0.45" BlurRadius="34" ShadowDepth="0" />
+                        </Border.Effect>
+                        <TextBlock Text="" FontFamily="{DynamicResource IconFont}" FontSize="36"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+
+                    <TextBlock x:Name="TitleText" Text="{DynamicResource Install.Title}"
+                               Style="{DynamicResource H1}" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="SubtitleText" Text="{DynamicResource Install.Subtitle}"
+                               Style="{DynamicResource Caption}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+
+                    <Border Style="{DynamicResource Card}" Margin="0,22,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{DynamicResource Install.Description}"
+                                       Style="{DynamicResource Body}"
+                                       Foreground="{DynamicResource TextMutedBrush}" TextWrapping="Wrap" />
+
+                            <TextBlock Text="{DynamicResource Install.PathLabel}"
+                                       Style="{DynamicResource MicroCaption}" Margin="0,18,0,8" />
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0"
+                                        Background="{DynamicResource BgBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                        CornerRadius="10" Padding="14,0" Height="42">
+                                    <TextBox x:Name="PathBox"
+                                             Background="Transparent" BorderThickness="0"
+                                             VerticalAlignment="Center"
+                                             FontFamily="{DynamicResource MonoFont}" FontSize="12.5" />
+                                </Border>
+                                <Button Grid.Column="1" Style="{DynamicResource ButtonBase}"
+                                        Margin="8,0,0,0" Click="OnBrowse">
+                                    <TextBlock Text="{DynamicResource Common.Browse}" />
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Status / progress -->
+                    <Border x:Name="ProgressCard" Style="{DynamicResource Card}" Margin="0,14,0,0" Visibility="Collapsed">
+                        <StackPanel>
+                            <TextBlock x:Name="StatusText" Style="{DynamicResource Body}" />
+                            <Border Margin="0,12,0,0" Height="6" CornerRadius="3"
+                                    Background="{DynamicResource SurfaceActiveBrush}">
+                                <Grid HorizontalAlignment="Left" Width="0" x:Name="ProgressFillContainer">
+                                    <Border x:Name="ProgressFill" Background="{DynamicResource AccentGradientBrush}"
+                                            CornerRadius="3" />
+                                </Grid>
+                            </Border>
+                            <TextBlock x:Name="DoneText" Style="{DynamicResource Caption}"
+                                       Foreground="{DynamicResource SuccessBrush}"
+                                       Margin="0,10,0,0" Visibility="Collapsed" />
+                        </StackPanel>
+                    </Border>
+
+                    <Grid Margin="0,22,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0" Style="{DynamicResource GhostButton}" Click="OnOpenSite" HorizontalAlignment="Left">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="" FontFamily="{DynamicResource IconFont}" FontSize="12" VerticalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource Install.OpenSite}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="ManualBtn" Grid.Column="1" Style="{DynamicResource ButtonBase}" Margin="0,0,10,0" Click="OnManual">
+                            <TextBlock Text="{DynamicResource Install.Manual}" />
+                        </Button>
+
+                        <Button x:Name="InstallBtn" Grid.Column="2" Style="{DynamicResource PrimaryButton}" Click="OnInstall">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="" FontFamily="{DynamicResource IconFont}" FontSize="13" VerticalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource Install.Download}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="RestartBtn" Grid.Column="3" Style="{DynamicResource PrimaryButton}"
+                                Visibility="Collapsed" Click="OnRestart">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="" FontFamily="{DynamicResource IconFont}" FontSize="13" VerticalAlignment="Center" />
+                                <TextBlock Text="{DynamicResource Install.Restart}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</Window>
