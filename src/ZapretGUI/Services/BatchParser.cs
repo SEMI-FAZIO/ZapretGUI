@@ -16,7 +16,8 @@ public static class BatchParser
         string binDir = Path.Combine(zapretRoot, "bin") + "\\";
         string listsDir = Path.Combine(zapretRoot, "lists") + "\\";
 
-        string text = File.ReadAllText(batPath, DetectEncoding(batPath));
+        byte[] bytes = File.ReadAllBytes(batPath);
+        string text = DecodeBytes(bytes);
 
         var sb = new StringBuilder();
         bool capturing = false;
@@ -78,13 +79,37 @@ public static class BatchParser
         return inner;
     }
 
-    private static Encoding DetectEncoding(string path)
+    /// <summary>
+    /// Decodes a .bat file. Tries, in order:
+    ///   1. UTF-8 / UTF-16 BOM — trust the BOM.
+    ///   2. Strict UTF-8 decode — accept if every byte is valid UTF-8.
+    ///   3. Cp866 fallback — legacy Russian DOS encoding, the default for
+    ///      .bat files on a Russian-locale Windows for ~25 years.
+    /// </summary>
+    internal static string DecodeBytes(byte[] bytes)
     {
-        using var fs = File.OpenRead(path);
-        Span<byte> bom = stackalloc byte[3];
-        int read = fs.Read(bom);
-        if (read >= 3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
-            return Encoding.UTF8;
-        return Encoding.UTF8;
+        if (bytes.Length == 0) return string.Empty;
+
+        // BOM checks
+        if (bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF)
+            return new UTF8Encoding(false).GetString(bytes, 3, bytes.Length - 3);
+        if (bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xFE)
+            return Encoding.Unicode.GetString(bytes, 2, bytes.Length - 2);
+        if (bytes.Length >= 2 && bytes[0] == 0xFE && bytes[1] == 0xFF)
+            return Encoding.BigEndianUnicode.GetString(bytes, 2, bytes.Length - 2);
+
+        // Strict UTF-8 — throws on invalid byte sequences.
+        var strictUtf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+        try
+        {
+            return strictUtf8.GetString(bytes);
+        }
+        catch (DecoderFallbackException)
+        {
+            // Not valid UTF-8 — fall back to cp866. Requires
+            // Encoding.RegisterProvider(CodePagesEncodingProvider.Instance)
+            // which App.OnStartup does at process boot.
+            return Encoding.GetEncoding(866).GetString(bytes);
+        }
     }
 }

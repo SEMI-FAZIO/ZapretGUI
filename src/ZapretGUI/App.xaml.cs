@@ -1,5 +1,7 @@
 using System.IO;
+using System.Text;
 using System.Windows;
+using ZapretGUI.Helpers;
 using ZapretGUI.Services;
 using ZapretGUI.Views;
 
@@ -18,6 +20,11 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Register legacy codepages (cp866 / cp1251). Required by BatchParser
+        // to decode .bat files that aren't UTF-8 — common for Russian-locale
+        // shipped strategies.
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
         AppDomain.CurrentDomain.UnhandledException += (_, ex) =>
         {
             try
@@ -33,6 +40,23 @@ public partial class App : Application
             MessageBox.Show(args.Exception.ToString(), "ZapretGUI",
                 MessageBoxButton.OK, MessageBoxImage.Error);
             args.Handled = true;
+        };
+
+        // Route exceptions caught by AsyncRelayCommand to a toast + crash log.
+        // Previously these would crash the app via async-void → DispatcherUnhandledException.
+        AsyncRelayCommand.GlobalErrorHandler = ex =>
+        {
+            try
+            {
+                ToastService.Instance.Error(ex.Message);
+            }
+            catch { }
+            try
+            {
+                File.AppendAllText(Path.Combine(Path.GetTempPath(), "ZapretGUI_crash.log"),
+                    $"[{DateTime.Now:O}] async-cmd: {ex}\n");
+            }
+            catch { }
         };
 
         // 0. Apply theme + language FIRST so the splash uses correct colors.
@@ -83,5 +107,13 @@ public partial class App : Application
                 Shutdown(1);
             }
         }), System.Windows.Threading.DispatcherPriority.Background);
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        // Release the last attached winws.exe Process handle. Without this,
+        // LogStreamService holds an OS handle until the GC sweeps it up.
+        try { Logs?.Dispose(); } catch { }
+        base.OnExit(e);
     }
 }

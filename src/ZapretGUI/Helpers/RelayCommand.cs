@@ -37,19 +37,31 @@ public sealed class AsyncRelayCommand : ICommand
 {
     private readonly Func<object?, Task> _execute;
     private readonly Predicate<object?>? _canExecute;
+    private readonly Action<Exception>? _onError;
     private bool _isRunning;
 
-    public AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null)
+    /// <summary>
+    /// Global error handler invoked when any AsyncRelayCommand swallows an
+    /// exception that the per-command <c>onError</c> did not handle.
+    /// Wire this up once at app startup (e.g. App.OnStartup) to surface a
+    /// toast or write to the log instead of letting the exception escape
+    /// to DispatcherUnhandledException, which on async-void crashes the app.
+    /// </summary>
+    public static Action<Exception>? GlobalErrorHandler { get; set; }
+
+    public AsyncRelayCommand(Func<Task> execute, Func<bool>? canExecute = null, Action<Exception>? onError = null)
     {
         ArgumentNullException.ThrowIfNull(execute);
         _execute = _ => execute();
         _canExecute = canExecute is null ? null : _ => canExecute();
+        _onError = onError;
     }
 
-    public AsyncRelayCommand(Func<object?, Task> execute, Predicate<object?>? canExecute = null)
+    public AsyncRelayCommand(Func<object?, Task> execute, Predicate<object?>? canExecute = null, Action<Exception>? onError = null)
     {
         _execute = execute ?? throw new ArgumentNullException(nameof(execute));
         _canExecute = canExecute;
+        _onError = onError;
     }
 
     public event EventHandler? CanExecuteChanged
@@ -68,6 +80,19 @@ public sealed class AsyncRelayCommand : ICommand
         try
         {
             await _execute(parameter);
+        }
+        catch (OperationCanceledException)
+        {
+            // User-initiated cancellation is not an error.
+        }
+        catch (Exception ex)
+        {
+            // Swallow here so the exception does not propagate out of async void
+            // (which would land in DispatcherUnhandledException and crash the
+            // app). Surface via per-command handler first, then the global one.
+            System.Diagnostics.Debug.WriteLine($"[AsyncRelayCommand] {ex}");
+            try { _onError?.Invoke(ex); } catch { }
+            try { GlobalErrorHandler?.Invoke(ex); } catch { }
         }
         finally
         {
