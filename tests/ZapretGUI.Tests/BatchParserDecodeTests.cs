@@ -30,9 +30,9 @@ public class BatchParserDecodeTests
 
         string text = BatchParser.DecodeBytes(bytes);
 
+        // Exact equality proves the BOM was stripped — the expected literal has no BOM.
         Assert.Equal("rem Стратегия\r\nwinws.exe\r\n", text);
-        // The leading BOM character (U+FEFF) must NOT appear in the decoded string.
-        Assert.DoesNotContain("﻿", text);
+        Assert.False(text.StartsWith('﻿'), "Decoded string must not start with U+FEFF (BOM)");
     }
 
     [Fact]
