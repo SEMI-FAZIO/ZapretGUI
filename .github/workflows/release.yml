@@ -41,7 +41,6 @@ jobs:
             --self-contained false `
             -p:PublishSingleFile=true `
             -p:IncludeNativeLibrariesForSelfExtract=true `
-            -p:EnableCompressionInSingleFile=true `
             -p:DebugType=embedded `
             -p:Version=${{ steps.ver.outputs.tag }} `
             -o publish-fdd
