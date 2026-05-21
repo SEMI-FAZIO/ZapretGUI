@@ -56,8 +56,7 @@ public sealed class StrategiesViewModel : BaseViewModel
             if (SelectedStrategy is null) return "Выберите стратегию из списка слева, чтобы увидеть параметры winws.exe.";
             try
             {
-                var (_, all, tcp, udp) = _ctrl.Filters.GetGameFilter();
-                string args = BatchParser.ExtractWinwsArgs(SelectedStrategy.FullPath, _ctrl.ZapretRoot, all, tcp, udp);
+                string args = _ctrl.Strategies.ExtractWinwsArgs(SelectedStrategy, _ctrl.Filters.GetGameFilterState());
                 return PrettyPrintArgs(args);
             }
             catch (Exception ex)

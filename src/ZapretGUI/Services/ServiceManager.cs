@@ -13,11 +13,13 @@ public sealed class ServiceManager
 
     private readonly string _root;
     private readonly FilterManager _filters;
+    private readonly IStrategyProvider _provider;
 
-    public ServiceManager(string zapretRoot, FilterManager filters)
+    public ServiceManager(string zapretRoot, FilterManager filters, IStrategyProvider provider)
     {
         _root = zapretRoot;
         _filters = filters;
+        _provider = provider;
     }
 
     public bool IsServiceInstalled() => QueryService(ZapretServiceName) is not null;
@@ -56,8 +58,7 @@ public sealed class ServiceManager
 
     public async Task<string> InstallAsServiceAsync(Strategy strategy, CancellationToken ct = default)
     {
-        var (_, all, tcp, udp) = _filters.GetGameFilter();
-        string args = BatchParser.ExtractWinwsArgs(strategy.FullPath, _root, all, tcp, udp);
+        string args = _provider.ExtractWinwsArgs(strategy, _filters.GetGameFilterState());
 
         await StopAndDeleteAsync(ZapretServiceName, ct);
         KillWinws();
@@ -106,8 +107,7 @@ public sealed class ServiceManager
         _filters.EnsureUserLists();
         EnableTcpTimestamps();
 
-        var (_, all, tcp, udp) = _filters.GetGameFilter();
-        string args = BatchParser.ExtractWinwsArgs(strategy.FullPath, _root, all, tcp, udp);
+        string args = _provider.ExtractWinwsArgs(strategy, _filters.GetGameFilterState());
         string exe = Path.Combine(_root, "bin", "winws.exe");
 
         if (captureLogs && logs is not null)

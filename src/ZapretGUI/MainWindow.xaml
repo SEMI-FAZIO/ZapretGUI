@@ -51,6 +51,20 @@
                     </Border>
                     <TextBlock Text="Zapret" Margin="10,0,0,0" Style="{StaticResource Body}" FontWeight="SemiBold" VerticalAlignment="Center" />
                     <TextBlock Text="GUI" Margin="6,0,0,0" Style="{StaticResource Caption}" VerticalAlignment="Center" />
+
+                    <!-- Provider mode badge: shows "Flowseal" or "ZDefree" depending on
+                         whether manifest.json was detected in the install root. -->
+                    <Border Margin="12,0,0,0" Padding="8,2"
+                            CornerRadius="4"
+                            Background="{StaticResource AccentSoftBrush}"
+                            BorderBrush="{StaticResource BorderBrush}"
+                            BorderThickness="1"
+                            VerticalAlignment="Center"
+                            ToolTip="{Binding ProviderHint}">
+                        <TextBlock Text="{Binding ProviderLabel}"
+                                   Style="{StaticResource MicroCaption}"
+                                   VerticalAlignment="Center" />
+                    </Border>
                 </StackPanel>
 
                 <TextBlock Grid.Column="1" Text="{Binding StrategyDisplay}"

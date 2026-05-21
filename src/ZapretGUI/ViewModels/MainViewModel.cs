@@ -46,6 +46,15 @@ public sealed class MainViewModel : BaseViewModel
 
     public string Version => "1.0.0";
 
+    /// <summary>Active strategy provider name — "Flowseal" or "ZDefree".</summary>
+    public string ProviderName => _ctrl.Strategies.ProviderName;
+
+    public string ProviderLabel => LocalizationService.Get($"Mode.{ProviderName}");
+    public string ProviderHint  => LocalizationService.Get($"Mode.Hint.{ProviderName}");
+
+    /// <summary>True when running in native ZDefree mode (manifest.json detected).</summary>
+    public bool IsZDefreeMode => ProviderName == "ZDefree";
+
     public MainViewModel()
     {
         _ctrl = App.Controller;
@@ -65,6 +74,18 @@ public sealed class MainViewModel : BaseViewModel
 
         BuildNav();
         LocalizationService.Instance.LanguageChanged += BuildNav;
+        LocalizationService.Instance.LanguageChanged += () =>
+        {
+            OnPropertyChanged(nameof(ProviderLabel));
+            OnPropertyChanged(nameof(ProviderHint));
+        };
+        _ctrl.RootChanged += () =>
+        {
+            OnPropertyChanged(nameof(ProviderName));
+            OnPropertyChanged(nameof(ProviderLabel));
+            OnPropertyChanged(nameof(ProviderHint));
+            OnPropertyChanged(nameof(IsZDefreeMode));
+        };
 
         SelectedNav = NavItems.FirstOrDefault();
 

@@ -7,7 +7,7 @@ public sealed class ZapretController
 {
     public string ZapretRoot { get; private set; }
     public FilterManager Filters { get; private set; }
-    public StrategyRepository Strategies { get; private set; }
+    public IStrategyProvider Strategies { get; private set; }
     public ServiceManager Services { get; private set; }
     public ListManager Lists { get; private set; }
     public DiagnosticsRunner Diagnostics { get; private set; }
@@ -19,8 +19,8 @@ public sealed class ZapretController
     {
         ZapretRoot = zapretRoot;
         Filters = new FilterManager(zapretRoot);
-        Strategies = new StrategyRepository(zapretRoot);
-        Services = new ServiceManager(zapretRoot, Filters);
+        Strategies = SelectProvider(zapretRoot);
+        Services = new ServiceManager(zapretRoot, Filters, Strategies);
         Lists = new ListManager(zapretRoot);
         Diagnostics = new DiagnosticsRunner(zapretRoot);
         IsZapretInstalled = IsZapretRoot(zapretRoot);
@@ -30,12 +30,38 @@ public sealed class ZapretController
     {
         ZapretRoot = newRoot;
         Filters = new FilterManager(newRoot);
-        Strategies = new StrategyRepository(newRoot);
-        Services = new ServiceManager(newRoot, Filters);
+        Strategies = SelectProvider(newRoot);
+        Services = new ServiceManager(newRoot, Filters, Strategies);
         Lists = new ListManager(newRoot);
         Diagnostics = new DiagnosticsRunner(newRoot);
         IsZapretInstalled = IsZapretRoot(newRoot);
         RootChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Picks the strategy provider for a given install root. <c>manifest.json</c>
+    /// presence wins over <c>.bat</c> files — if both exist (mid-migration
+    /// install), ZDefree mode is preferred.
+    /// </summary>
+    private static IStrategyProvider SelectProvider(string root)
+    {
+        if (IsZDefreeRoot(root))
+        {
+            string lang = LocalizationService.Instance.Current == AppLanguage.Ru ? "ru" : "en";
+            return new ZDefreeStrategyProvider(root, lang);
+        }
+        return new StrategyRepository(root);
+    }
+
+    /// <summary>
+    /// True when the directory contains a ZDefree <c>manifest.json</c> at the
+    /// root — the marker that this install is a ZDefree distribution.
+    /// </summary>
+    public static bool IsZDefreeRoot(string? dir)
+    {
+        if (string.IsNullOrWhiteSpace(dir)) return false;
+        try { return File.Exists(Path.Combine(dir, "manifest.json")); }
+        catch { return false; }
     }
 
     public ZapretStatus GetStatus()

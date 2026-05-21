@@ -4,11 +4,21 @@ using ZapretGUI.Models;
 
 namespace ZapretGUI.Services;
 
-public sealed class StrategyRepository
+/// <summary>
+/// Legacy Flowseal strategy source: discovers <c>*.bat</c> files in the install
+/// root and extracts winws.exe args via <see cref="BatchParser"/>. Active when
+/// the install folder does not contain a ZDefree <c>manifest.json</c>.
+/// </summary>
+public sealed class StrategyRepository : IStrategyProvider
 {
     private readonly string _root;
 
     public StrategyRepository(string zapretRoot) => _root = zapretRoot;
+
+    public string ProviderName => "Flowseal";
+
+    public string ExtractWinwsArgs(Strategy strategy, GameFilterState filter)
+        => BatchParser.ExtractWinwsArgs(strategy.FullPath, _root, filter.All, filter.Tcp, filter.Udp);
 
     public IReadOnlyList<Strategy> Discover()
     {

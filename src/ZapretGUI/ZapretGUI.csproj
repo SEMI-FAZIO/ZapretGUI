@@ -34,6 +34,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- ZDefree.Core lives in the sibling ZDefree-tools repo. CI checks both repos
+         out side-by-side under GUI/. Used by ZDefreeStrategyProvider for native
+         JSON-strategy mode (when manifest.json is present in the install root). -->
+    <ProjectReference Include="..\..\..\ZDefree-tools\src\ZDefree.Core\ZDefree.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="..\..\assets\app.ico" Link="app.ico" />
   </ItemGroup>
 

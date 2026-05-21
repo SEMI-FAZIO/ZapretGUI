@@ -33,6 +33,15 @@ public sealed class FilterManager
         };
     }
 
+    /// <summary>
+    /// Record-shaped view of <see cref="GetGameFilter"/> for <see cref="IStrategyProvider.ExtractWinwsArgs"/>.
+    /// </summary>
+    public GameFilterState GetGameFilterState()
+    {
+        var (mode, all, tcp, udp) = GetGameFilter();
+        return new GameFilterState(mode, all, tcp, udp);
+    }
+
     public void SetGameFilter(GameFilterMode mode)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(GameFlagPath)!);

@@ -13,8 +13,24 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: ZapretGUI
     steps:
-      - uses: actions/checkout@v4
+      # ZapretGUI references ZDefree.Core via ProjectReference at
+      # ../../../ZDefree-tools/src/ZDefree.Core/ZDefree.Core.csproj — both repos
+      # must be checked out side-by-side under the workspace.
+      - name: Checkout ZapretGUI
+        uses: actions/checkout@v4
+        with:
+          path: ZapretGUI
+
+      - name: Checkout ZDefree-tools (sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: SEMI-FAZIO/ZDefree-tools
+          ref: main
+          path: ZDefree-tools
 
       - name: Set up .NET 8
         uses: actions/setup-dotnet@v4
@@ -55,10 +71,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ZapretGUI-net8
-          path: publish-fdd/ZapretGUI.exe
+          path: ZapretGUI/publish-fdd/ZapretGUI.exe
 
       - name: Upload self-contained artifact
         uses: actions/upload-artifact@v4
         with:
           name: ZapretGUI-portable
-          path: publish-sc/ZapretGUI.exe
+          path: ZapretGUI/publish-sc/ZapretGUI.exe

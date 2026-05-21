@@ -168,6 +168,12 @@
     <s:String x:Key="Conn.Status.Fail">Unreachable</s:String>
     <s:String x:Key="Conn.Status.Pending">Probing…</s:String>
 
+    <!-- Provider badge (Flowseal .bat vs native ZDefree) -->
+    <s:String x:Key="Mode.Flowseal">Flowseal</s:String>
+    <s:String x:Key="Mode.ZDefree">ZDefree</s:String>
+    <s:String x:Key="Mode.Hint.Flowseal">Legacy mode — strategies loaded from .bat files via BatchParser.</s:String>
+    <s:String x:Key="Mode.Hint.ZDefree">Native mode — strategies loaded from JSON via ZDefree.Core (manifest.json detected).</s:String>
+
     <!-- Confirmations -->
     <s:String x:Key="Confirm.RemoveService.Title">Remove zapret service?</s:String>
     <s:String x:Key="Confirm.RemoveService.Text">The service will be stopped and deleted. The bypass will stop working. This is safe — you can reinstall later.</s:String>
