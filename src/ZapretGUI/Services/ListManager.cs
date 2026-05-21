@@ -15,7 +15,7 @@ public sealed class ListManager
     public ListManager(string zapretRoot)
     {
         _root = zapretRoot;
-        _http = new HttpClient(new HttpClientHandler { CheckCertificateRevocationList = false });
+        _http = new HttpClient(new HttpClientHandler { CheckCertificateRevocationList = true });
         _http.DefaultRequestHeaders.Add("User-Agent", "ZapretGUI/1.0");
         _http.Timeout = TimeSpan.FromSeconds(20);
     }
