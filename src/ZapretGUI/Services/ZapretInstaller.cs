@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Compression;
+using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -11,15 +12,19 @@ public sealed class ZapretInstaller
     public const string RepoApi = "https://api.github.com/repos/Flowseal/zapret-discord-youtube/releases/latest";
     public const string RepoUrl = "https://github.com/Flowseal/zapret-discord-youtube";
 
-    // Only allow asset downloads from GitHub-controlled hosts. Defense in depth
-    // against an attacker who could manipulate the JSON we get back from the API.
-    private static readonly string[] AllowedDownloadHosts =
+    // Only allow asset downloads from GitHub-controlled hosts. We validate the
+    // host on every redirect hop (see GetFollowingAllowedRedirectsAsync) — not
+    // just on the initial URL, because the default HttpClient would silently
+    // follow a 302 from an allowed host to any host and defeat the allowlist.
+    internal static readonly string[] AllowedDownloadHosts =
     {
         "github.com",
         "api.github.com",
         "objects.githubusercontent.com",
         "release-assets.githubusercontent.com",
     };
+
+    private const int MaxRedirects = 5;
 
     public event Action<string>? Status;
     public event Action<int>? Progress;
@@ -28,14 +33,21 @@ public sealed class ZapretInstaller
     {
         Directory.CreateDirectory(targetRoot);
 
-        using var http = new HttpClient(new HttpClientHandler { CheckCertificateRevocationList = true });
+        var handler = new HttpClientHandler
+        {
+            CheckCertificateRevocationList = true,
+            AllowAutoRedirect = false, // we follow redirects manually, see GetFollowingAllowedRedirectsAsync
+        };
+        using var http = new HttpClient(handler);
         http.DefaultRequestHeaders.UserAgent.ParseAdd("ZapretGUI-Installer/1.0");
         http.Timeout = TimeSpan.FromMinutes(3);
 
         Report("Поиск последнего релиза…");
-        var resp = await http.GetAsync(RepoApi, ct);
-        resp.EnsureSuccessStatusCode();
-        string body = await resp.Content.ReadAsStringAsync(ct);
+        string body;
+        using (var apiResp = await GetFollowingAllowedRedirectsAsync(http, RepoApi, ct))
+        {
+            body = await apiResp.Content.ReadAsStringAsync(ct);
+        }
         using var doc = JsonDocument.Parse(body);
 
         string? zipUrl = null;
@@ -54,7 +66,7 @@ public sealed class ZapretInstaller
                 {
                     if (a.TryGetProperty("browser_download_url", out var url))
                         zipUrl = url.GetString();
-                    // GitHub Releases API now exposes a "digest" field on assets
+                    // GitHub Releases API exposes a "digest" field on assets
                     // formatted as "sha256:HEX". Use it if available; older
                     // releases without one fall through to TLS-only.
                     if (a.TryGetProperty("digest", out var dig))
@@ -68,12 +80,13 @@ public sealed class ZapretInstaller
             }
         }
         if (zipUrl is null) throw new InvalidOperationException("Не нашли подходящий .zip в последнем релизе.");
-        if (!IsAllowedHost(zipUrl))
-            throw new InvalidOperationException($"Отказано: загрузка с {new Uri(zipUrl).Host} запрещена.");
 
         Report($"Скачивание {tagName ?? "latest"}…");
         string tempZip = Path.Combine(Path.GetTempPath(), $"zapret-{Guid.NewGuid():N}.zip");
-        await DownloadAsync(http, zipUrl, tempZip, ct);
+        using (var downloadResp = await GetFollowingAllowedRedirectsAsync(http, zipUrl, ct))
+        {
+            await StreamToFileAsync(downloadResp, tempZip, ct);
+        }
 
         if (expectedSha256 is not null)
         {
@@ -107,7 +120,56 @@ public sealed class ZapretInstaller
         return tagName ?? "latest";
     }
 
-    private static bool IsAllowedHost(string url)
+    // Follows HTTP redirects manually, validating EVERY hop's host against
+    // AllowedDownloadHosts before issuing the request. With AllowAutoRedirect=true
+    // the default HttpClient would silently follow a 302 from github.com to any
+    // attacker host, defeating the allowlist.
+    internal static async Task<HttpResponseMessage> GetFollowingAllowedRedirectsAsync(
+        HttpClient http, string initialUrl, CancellationToken ct, int maxRedirects = MaxRedirects)
+    {
+        string currentUrl = initialUrl;
+        HttpResponseMessage? resp = null;
+        for (int hop = 0; hop <= maxRedirects; hop++)
+        {
+            if (!IsAllowedHost(currentUrl))
+            {
+                resp?.Dispose();
+                throw new InvalidOperationException(
+                    $"Отказано: загрузка с {SafeHost(currentUrl)} запрещена.");
+            }
+
+            resp?.Dispose();
+            resp = await http.GetAsync(currentUrl, HttpCompletionOption.ResponseHeadersRead, ct);
+
+            if (!IsRedirect(resp.StatusCode))
+            {
+                resp.EnsureSuccessStatusCode();
+                return resp;
+            }
+
+            var loc = resp.Headers.Location;
+            if (loc is null)
+            {
+                resp.EnsureSuccessStatusCode();
+                return resp;
+            }
+
+            var nextUri = loc.IsAbsoluteUri ? loc : new Uri(new Uri(currentUrl), loc);
+            currentUrl = nextUri.ToString();
+        }
+        resp?.Dispose();
+        throw new InvalidOperationException(
+            $"Слишком много редиректов (>{maxRedirects}) при загрузке.");
+    }
+
+    internal static bool IsRedirect(HttpStatusCode code) =>
+        code == HttpStatusCode.MovedPermanently    // 301
+        || code == HttpStatusCode.Found             // 302
+        || code == HttpStatusCode.SeeOther          // 303
+        || code == HttpStatusCode.TemporaryRedirect // 307
+        || code == HttpStatusCode.PermanentRedirect; // 308
+
+    internal static bool IsAllowedHost(string url)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return false;
         if (uri.Scheme != Uri.UriSchemeHttps) return false;
@@ -118,7 +180,12 @@ public sealed class ZapretInstaller
         return false;
     }
 
-    private static async Task<string> ComputeSha256Async(string path, CancellationToken ct)
+    private static string SafeHost(string url)
+    {
+        try { return new Uri(url).Host; } catch { return "<invalid>"; }
+    }
+
+    internal static async Task<string> ComputeSha256Async(string path, CancellationToken ct)
     {
         await using var stream = File.OpenRead(path);
         using var sha = SHA256.Create();
@@ -128,7 +195,7 @@ public sealed class ZapretInstaller
 
     // Iterates entries with traversal validation to prevent Zip-Slip
     // (an entry like "../../foo" escaping the target directory).
-    private static void SafeExtractToDirectory(string zipPath, string destRoot)
+    internal static void SafeExtractToDirectory(string zipPath, string destRoot)
     {
         string normalizedRoot = Path.GetFullPath(destRoot);
         if (!normalizedRoot.EndsWith(Path.DirectorySeparatorChar)) normalizedRoot += Path.DirectorySeparatorChar;
@@ -152,12 +219,9 @@ public sealed class ZapretInstaller
         }
     }
 
-    private async Task DownloadAsync(HttpClient http, string url, string destPath, CancellationToken ct)
+    private async Task StreamToFileAsync(HttpResponseMessage resp, string destPath, CancellationToken ct)
     {
-        using var resp = await http.GetAsync(url, HttpCompletionOption.ResponseHeadersRead, ct);
-        resp.EnsureSuccessStatusCode();
         long? total = resp.Content.Headers.ContentLength;
-
         await using var src = await resp.Content.ReadAsStreamAsync(ct);
         await using var dst = File.Create(destPath);
         var buf = new byte[81920];
