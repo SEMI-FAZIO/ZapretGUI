@@ -28,6 +28,9 @@
 
   <ItemGroup>
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.1" />
+    <!-- Legacy codepages (cp866 / cp1251) are not registered in .NET 5+ by
+         default. Needed by BatchParser to decode .bat files that aren't UTF-8. -->
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

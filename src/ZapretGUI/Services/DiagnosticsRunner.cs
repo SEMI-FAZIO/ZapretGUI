@@ -12,24 +12,33 @@ public sealed class DiagnosticsRunner
 
     public DiagnosticsRunner(string zapretRoot) => _root = zapretRoot;
 
-    public async Task<List<DiagnosticResult>> RunAllAsync(CancellationToken ct = default)
+    public Task<List<DiagnosticResult>> RunAllAsync(CancellationToken ct = default)
     {
-        var results = new List<DiagnosticResult>();
-        results.Add(CheckBfe());
-        results.Add(CheckProxy());
-        results.Add(CheckTcpTimestamps());
-        results.Add(CheckProcess("AdguardSvc", "Adguard может мешать Discord", "https://github.com/Flowseal/zapret-discord-youtube/issues/417"));
-        results.Add(CheckServiceContains("Killer", "Killer-сервисы конфликтуют с zapret"));
-        results.Add(CheckIntelConnectivity());
-        results.Add(CheckCheckPoint());
-        results.Add(CheckServiceContains("SmartByte", "SmartByte конфликтует с zapret"));
-        results.Add(CheckWinDivertFile());
-        results.Add(CheckVpn());
-        results.Add(CheckSecureDns());
-        results.Add(CheckHostsForYouTube());
-        results.Add(CheckConflictingBypasses());
-        await Task.CompletedTask;
-        return results;
+        // Off-load to a worker thread: several checks (ServiceController.GetServices,
+        // netsh, Registry reads) block for seconds and would freeze the UI thread
+        // otherwise. The method was previously marked `async` without any awaits,
+        // so every call ran synchronously on whatever thread the command resumed on.
+        return Task.Run(() =>
+        {
+            var results = new List<DiagnosticResult>();
+            results.Add(CheckBfe());                           ct.ThrowIfCancellationRequested();
+            results.Add(CheckProxy());                         ct.ThrowIfCancellationRequested();
+            results.Add(CheckTcpTimestamps());                 ct.ThrowIfCancellationRequested();
+            results.Add(CheckProcess("AdguardSvc", "Adguard может мешать Discord", "https://github.com/Flowseal/zapret-discord-youtube/issues/417"));
+            ct.ThrowIfCancellationRequested();
+            results.Add(CheckServiceContains("Killer", "Killer-сервисы конфликтуют с zapret"));
+            ct.ThrowIfCancellationRequested();
+            results.Add(CheckIntelConnectivity());             ct.ThrowIfCancellationRequested();
+            results.Add(CheckCheckPoint());                    ct.ThrowIfCancellationRequested();
+            results.Add(CheckServiceContains("SmartByte", "SmartByte конфликтует с zapret"));
+            ct.ThrowIfCancellationRequested();
+            results.Add(CheckWinDivertFile());                 ct.ThrowIfCancellationRequested();
+            results.Add(CheckVpn());                           ct.ThrowIfCancellationRequested();
+            results.Add(CheckSecureDns());                     ct.ThrowIfCancellationRequested();
+            results.Add(CheckHostsForYouTube());               ct.ThrowIfCancellationRequested();
+            results.Add(CheckConflictingBypasses());
+            return results;
+        }, ct);
     }
 
     private static DiagnosticResult CheckBfe()
