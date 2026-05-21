@@ -20,7 +20,9 @@
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <DebugType>embedded</DebugType>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <!-- EnableCompressionInSingleFile is set per-publish in CI: .NET 10 SDK rejects it
+         on framework-dependent builds (NETSDK1176), so we only pass it when publishing
+         the self-contained bundle. -->
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
   </PropertyGroup>
 
