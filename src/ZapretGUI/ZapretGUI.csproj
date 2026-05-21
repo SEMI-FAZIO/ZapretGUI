@@ -32,4 +32,8 @@
     <Resource Include="..\..\assets\app.ico" Link="app.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ZapretGUI.Tests" />
+  </ItemGroup>
+
 </Project>

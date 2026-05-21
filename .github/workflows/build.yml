@@ -22,10 +22,13 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore
-        run: dotnet restore src/ZapretGUI/ZapretGUI.csproj
+        run: dotnet restore ZapretGUI.sln
 
       - name: Build
-        run: dotnet build src/ZapretGUI/ZapretGUI.csproj -c Release --no-restore
+        run: dotnet build ZapretGUI.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test tests/ZapretGUI.Tests/ZapretGUI.Tests.csproj -c Release --no-build --verbosity normal
 
       - name: Publish (framework-dependent single file)
         run: |
