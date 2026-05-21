@@ -58,13 +58,20 @@ public sealed class BackupService
         var result = new BackupRestoreResult();
         using var archive = ZipFile.OpenRead(sourceZip);
 
+        string settingsTarget = SettingsService.Instance.SettingsPath;
+        string settingsRoot = Path.GetFullPath(Path.GetDirectoryName(settingsTarget)!);
+        string zapretRoot = Path.GetFullPath(_ctrl.ZapretRoot);
+
         foreach (var entry in archive.Entries)
         {
+            // Skip directory entries (zero length name + ends with slash).
+            if (string.IsNullOrEmpty(entry.Name)) continue;
+
             if (entry.FullName.Equals("settings.json", StringComparison.OrdinalIgnoreCase))
             {
-                string target = SettingsService.Instance.SettingsPath;
-                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                entry.ExtractToFile(target, overwrite: true);
+                if (!IsSafeExtractPath(settingsTarget, settingsRoot)) continue;
+                Directory.CreateDirectory(settingsRoot);
+                entry.ExtractToFile(settingsTarget, overwrite: true);
                 result.RestoredSettings = true;
                 continue;
             }
@@ -72,13 +79,23 @@ public sealed class BackupService
             if (entry.FullName.StartsWith("zapret/", StringComparison.OrdinalIgnoreCase))
             {
                 string rel = entry.FullName.Substring("zapret/".Length);
-                string target = Path.Combine(_ctrl.ZapretRoot, rel.Replace('/', Path.DirectorySeparatorChar));
+                string target = Path.Combine(zapretRoot, rel.Replace('/', Path.DirectorySeparatorChar));
+                if (!IsSafeExtractPath(target, zapretRoot)) continue;
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                 entry.ExtractToFile(target, overwrite: true);
                 result.RestoredFiles.Add(rel);
             }
         }
         return result;
+    }
+
+    // Reject zip entries that resolve outside the intended root (Zip-Slip).
+    private static bool IsSafeExtractPath(string targetPath, string allowedRoot)
+    {
+        string fullTarget = Path.GetFullPath(targetPath);
+        string fullRoot = Path.GetFullPath(allowedRoot);
+        if (!fullRoot.EndsWith(Path.DirectorySeparatorChar)) fullRoot += Path.DirectorySeparatorChar;
+        return fullTarget.StartsWith(fullRoot, StringComparison.OrdinalIgnoreCase);
     }
 
     private static void WriteEntry(ZipArchive archive, string name, byte[] bytes)

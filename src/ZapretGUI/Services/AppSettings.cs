@@ -73,6 +73,8 @@ public sealed class SettingsService
 
     public event Action? Changed;
 
+    private readonly object _saveLock = new();
+
     private SettingsService()
     {
         SettingsDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ZapretGUI");
@@ -93,19 +95,33 @@ public sealed class SettingsService
 
     public void Save()
     {
-        try
+        lock (_saveLock)
         {
-            Directory.CreateDirectory(SettingsDir);
-            string json = JsonSerializer.Serialize(Current, JsonOpts);
-            File.WriteAllText(SettingsPath, json);
-            Changed?.Invoke();
+            try
+            {
+                Directory.CreateDirectory(SettingsDir);
+                string json = JsonSerializer.Serialize(Current, JsonOpts);
+
+                // Write to a sibling temp file then atomically replace, so a crash
+                // mid-write cannot leave settings.json half-written / corrupt.
+                string tmp = SettingsPath + ".tmp";
+                File.WriteAllText(tmp, json);
+                if (File.Exists(SettingsPath))
+                    File.Replace(tmp, SettingsPath, destinationBackupFileName: null, ignoreMetadataErrors: true);
+                else
+                    File.Move(tmp, SettingsPath);
+            }
+            catch { return; }
         }
-        catch { }
+        Changed?.Invoke();
     }
 
     public void Update(Action<AppSettings> mutator)
     {
-        mutator(Current);
+        lock (_saveLock)
+        {
+            mutator(Current);
+        }
         Save();
     }
 }
