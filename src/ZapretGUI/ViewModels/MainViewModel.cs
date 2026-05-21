@@ -1,8 +1,11 @@
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Windows;
 using System.Windows.Threading;
 using ZapretGUI.Models;
 using ZapretGUI.Services;
 using ZapretGUI.Views;
+using ZDefree.Core.Watching;
 
 namespace ZapretGUI.ViewModels;
 
@@ -10,6 +13,7 @@ public sealed class MainViewModel : BaseViewModel
 {
     private readonly ZapretController _ctrl;
     private readonly DispatcherTimer _refreshTimer;
+    private StrategyWatcher? _watcher;
 
     public DashboardViewModel Dashboard { get; }
     public StrategiesViewModel Strategies { get; }
@@ -85,7 +89,10 @@ public sealed class MainViewModel : BaseViewModel
             OnPropertyChanged(nameof(ProviderLabel));
             OnPropertyChanged(nameof(ProviderHint));
             OnPropertyChanged(nameof(IsZDefreeMode));
+            RebindStrategyWatcher();
         };
+
+        RebindStrategyWatcher();
 
         SelectedNav = NavItems.FirstOrDefault();
 
@@ -116,6 +123,51 @@ public sealed class MainViewModel : BaseViewModel
         Status = _ctrl.GetStatus();
         OnPropertyChanged(nameof(StrategyDisplay));
         Dashboard.OnStatusUpdated(Status);
+    }
+
+    /// <summary>
+    /// (Re)attach the strategies/ FileSystemWatcher when running in ZDefree mode.
+    /// In Flowseal mode the watcher is null — the .bat catalog is static enough
+    /// that polling on Reload() is fine. Called from the ctor and on RootChanged.
+    /// </summary>
+    private void RebindStrategyWatcher()
+    {
+        try { _watcher?.Dispose(); } catch { }
+        _watcher = null;
+
+        if (_ctrl.Strategies.ProviderName != "ZDefree") return;
+
+        string strategiesDir = Path.Combine(_ctrl.ZapretRoot, "strategies");
+        if (!Directory.Exists(strategiesDir)) return;
+
+        try
+        {
+            _watcher = new StrategyWatcher(strategiesDir);
+            _watcher.Changed += OnStrategiesOnDiskChanged;
+            _watcher.Start();
+        }
+        catch
+        {
+            // Best-effort: if FileSystemWatcher fails to attach (locked dir,
+            // permissions, etc.), live without hot-reload — manual Refresh works.
+            _watcher = null;
+        }
+    }
+
+    private void OnStrategiesOnDiskChanged(object? sender, StrategyChangeEvent e)
+    {
+        // FileSystemWatcher fires on a thread pool thread — marshal to UI.
+        Application.Current?.Dispatcher.BeginInvoke(() =>
+        {
+            try
+            {
+                Strategies.Reload();
+                string msg = string.Format(LocalizationService.Get("Strategies.Reloaded"),
+                    Path.GetFileName(e.FilePath));
+                ToastService.Instance.Info(msg);
+            }
+            catch { /* keep watcher alive even if reload throws */ }
+        });
     }
 }
 

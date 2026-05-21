@@ -15,6 +15,31 @@ public sealed class ProbeResult
     public long? PingMs { get; set; }
     public string? Detail { get; set; }
     public int? HttpStatus { get; set; }
+
+    /// <summary>
+    /// Heuristic [0..80] score mirroring <c>ZDefree.Core.Probing.ProbeResult.Score</c>:
+    /// HTTPS success = 60 base, minus latency penalty (1 per 50ms);
+    /// ping success  = 20 base, minus latency penalty (1 per 10ms).
+    /// Higher is better — used by auto-pick to rank strategies.
+    /// </summary>
+    public double Score
+    {
+        get
+        {
+            double s = 0;
+            if (Status == ProbeStatus.Ok && HttpLatencyMs.HasValue)
+            {
+                s += 60;
+                s -= Math.Min(40, HttpLatencyMs.Value / 50.0);
+            }
+            if (PingMs.HasValue)
+            {
+                s += 20;
+                s -= Math.Min(15, PingMs.Value / 10.0);
+            }
+            return Math.Max(0, s);
+        }
+    }
 }
 
 public sealed class ConnectivityChecker

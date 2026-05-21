@@ -58,6 +58,78 @@
                 </Grid>
             </Border>
 
+            <!-- ISP fingerprint (ZDefree.Core IspDetector) -->
+            <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                <StackPanel>
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{DynamicResource Settings.Isp}" Style="{StaticResource H3}" />
+                            <TextBlock Text="{DynamicResource Settings.Isp.Hint}"
+                                       Style="{StaticResource Caption}" Margin="0,4,0,0" TextWrapping="Wrap" MaxWidth="640" />
+                        </StackPanel>
+                        <Button Grid.Column="1" Style="{StaticResource PrimaryButton}"
+                                Command="{Binding DetectIspCommand}"
+                                VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="" FontFamily="{StaticResource IconFont}" FontSize="13" VerticalAlignment="Center" />
+                                <TextBlock Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="{DynamicResource Settings.Isp.Detect}" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsDetectingIsp}" Value="True">
+                                                    <Setter Property="Text" Value="{DynamicResource Settings.Isp.Detecting}" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <TextBlock Text="{DynamicResource Settings.Isp.NotDetected}"
+                               Style="{StaticResource Caption}" Margin="0,8,0,0"
+                               Visibility="{Binding HasIspInfo, Converter={StaticResource BoolToVis}, ConverterParameter=invert, FallbackValue=Visible}" />
+
+                    <TextBlock Style="{StaticResource Caption}" Margin="0,8,0,0"
+                               Foreground="{StaticResource DangerBrush}"
+                               TextWrapping="Wrap"
+                               Visibility="{Binding IspError, Converter={StaticResource StringEmpty}, FallbackValue=Collapsed}">
+                        <Run Text="{DynamicResource Settings.Isp.Error}" /><Run Text=": " /><Run Text="{Binding IspError, Mode=OneWay}" />
+                    </TextBlock>
+
+                    <Grid Margin="0,8,0,0"
+                          Visibility="{Binding HasIspInfo, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{DynamicResource Settings.Isp.Ip}"        Style="{StaticResource MicroCaption}" Margin="0,2,12,2" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding IspIp}"                          Style="{StaticResource Body}"        Margin="0,2,0,2" />
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="{DynamicResource Settings.Isp.Country}"   Style="{StaticResource MicroCaption}" Margin="0,2,12,2" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding IspCountry, FallbackValue=—}"    Style="{StaticResource Body}"        Margin="0,2,0,2" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="{DynamicResource Settings.Isp.Asn}"       Style="{StaticResource MicroCaption}" Margin="0,2,12,2" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding IspAsn, FallbackValue=—}"        Style="{StaticResource Body}"        Margin="0,2,0,2" />
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="{DynamicResource Settings.Isp.Org}"       Style="{StaticResource MicroCaption}" Margin="0,2,12,2" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding IspOrg, FallbackValue=—}"        Style="{StaticResource Body}"        Margin="0,2,0,2" />
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="{DynamicResource Settings.Isp.CompatTag}" Style="{StaticResource MicroCaption}" Margin="0,2,12,2" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding IspCompatTag, FallbackValue=—}"  Style="{StaticResource Body}"        Margin="0,2,0,2" FontWeight="SemiBold" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
             <!-- Behavior -->
             <Border Style="{StaticResource Card}" Margin="0,0,0,14">
                 <StackPanel>

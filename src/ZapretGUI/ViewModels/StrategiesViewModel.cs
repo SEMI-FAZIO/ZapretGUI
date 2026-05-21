@@ -6,6 +6,7 @@ using System.Windows.Input;
 using ZapretGUI.Helpers;
 using ZapretGUI.Models;
 using ZapretGUI.Services;
+using ZDefree.Core.Probing;
 
 namespace ZapretGUI.ViewModels;
 
@@ -94,6 +95,13 @@ public sealed class StrategiesViewModel : BaseViewModel
     public ICommand RefreshCommand { get; }
     public ICommand OpenFolderCommand { get; }
     public ICommand ToggleDiffCommand { get; }
+    public ICommand AutoPickCommand { get; }
+
+    /// <summary>Visible/enabled only in ZDefree mode — Flowseal has no INDEX.json to rank.</summary>
+    public bool CanAutoPick => _ctrl.Strategies.ProviderName == "ZDefree";
+
+    private bool _isAutoPicking;
+    public bool IsAutoPicking { get => _isAutoPicking; private set { SetField(ref _isAutoPicking, value); CommandManager.InvalidateRequerySuggested(); } }
 
     public StrategiesViewModel(ZapretController ctrl, MainViewModel root)
     {
@@ -108,8 +116,61 @@ public sealed class StrategiesViewModel : BaseViewModel
         RefreshCommand = new RelayCommand(_ => Reload());
         OpenFolderCommand = new RelayCommand(_ => OpenZapretFolder());
         ToggleDiffCommand = new RelayCommand(_ => ToggleDiff());
+        AutoPickCommand = new AsyncRelayCommand(AutoPickAsync, () => !IsBusy && !IsAutoPicking && CanAutoPick);
 
         Reload();
+    }
+
+    private async Task AutoPickAsync()
+    {
+        IsAutoPicking = true;
+        Message = null;
+        try
+        {
+            string strategiesDir = Path.Combine(_ctrl.ZapretRoot, "strategies");
+            using var ispDet = new IspDetector();
+            var picker = new StrategyPicker(ispDet);
+            var result = await picker.RunAsync(new PickerOptions
+            {
+                StrategiesDir = strategiesDir,
+                IspMode       = "auto",
+                DryRun        = true,
+            });
+
+            if (result.Candidates.Count == 0)
+            {
+                Message = LocalizationService.Get("Strategies.AutoPick.NoCandidates");
+                return;
+            }
+
+            // Pick the top-ranked candidate (ISP-matched first, then by category/id).
+            var winner = result.Candidates[0];
+            var match = All.FirstOrDefault(s =>
+                Path.GetFileNameWithoutExtension(s.FileName)
+                    .Equals(winner.Id, StringComparison.OrdinalIgnoreCase));
+
+            if (match is null)
+            {
+                Message = $"Auto-pick: top candidate '{winner.Id}' not found in catalog.";
+                return;
+            }
+
+            SelectedStrategy = match;
+            string ispLabel = result.DetectedIsp?.CompatTag ?? result.DetectedIsp?.Asn ?? "—";
+            Message = winner.IspMatched
+                ? string.Format(LocalizationService.Get("Strategies.AutoPick.PickedMatched"), winner.Name, ispLabel)
+                : string.Format(LocalizationService.Get("Strategies.AutoPick.PickedDefault"), winner.Name);
+            ToastService.Instance.Success(Message);
+        }
+        catch (Exception ex)
+        {
+            Message = "Auto-pick: " + ex.Message;
+            ToastService.Instance.Error(Message);
+        }
+        finally
+        {
+            IsAutoPicking = false;
+        }
     }
 
     private void ToggleDiff()

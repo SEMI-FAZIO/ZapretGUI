@@ -77,6 +77,13 @@
     <s:String x:Key="Strategies.Run">Запустить</s:String>
     <s:String x:Key="Strategies.Install">Установить сервис</s:String>
     <s:String x:Key="Strategies.OpenFolder">Открыть папку</s:String>
+    <s:String x:Key="Strategies.AutoPick">Авто-подбор</s:String>
+    <s:String x:Key="Strategies.AutoPicking">Подбираю…</s:String>
+    <s:String x:Key="Strategies.AutoPick.Hint">Определить ISP и выбрать стратегию с наивысшим рейтингом. Только ZDefree режим.</s:String>
+    <s:String x:Key="Strategies.AutoPick.NoCandidates">В INDEX.json не найдено кандидатов.</s:String>
+    <s:String x:Key="Strategies.AutoPick.PickedMatched">Выбрана «{0}» — совпадение с ISP ({1}).</s:String>
+    <s:String x:Key="Strategies.AutoPick.PickedDefault">Выбрана «{0}» — без совпадения по ISP, дефолтное ранжирование.</s:String>
+    <s:String x:Key="Strategies.Reloaded">Каталог стратегий обновлён: {0}</s:String>
 
     <!-- Lists -->
     <s:String x:Key="Lists.Title">Списки</s:String>
@@ -106,6 +113,7 @@
     <s:String x:Key="Diagnostics.ConnTest">Тест соединения</s:String>
     <s:String x:Key="Diagnostics.ConnTestHint">Проверка доступности discord.com, youtube.com, google.com и измерение latency</s:String>
     <s:String x:Key="Diagnostics.Connect">Проверить соединение</s:String>
+    <s:String x:Key="Diagnostics.ConnTest.Score">Скор:</s:String>
 
     <!-- Logs -->
     <s:String x:Key="Logs.Title">Логи winws.exe</s:String>
@@ -167,6 +175,19 @@
     <s:String x:Key="Conn.Status.Ok">Доступен</s:String>
     <s:String x:Key="Conn.Status.Fail">Недоступен</s:String>
     <s:String x:Key="Conn.Status.Pending">Проверка…</s:String>
+
+    <!-- ISP detection (ZDefree.Core IspDetector через ipinfo.io) -->
+    <s:String x:Key="Settings.Isp">ISP-профиль</s:String>
+    <s:String x:Key="Settings.Isp.Hint">Определить внешний IP, страну, ASN и провайдера через ipinfo.io. Используется auto-pick для матчинга стратегий по compat.tested_isps.</s:String>
+    <s:String x:Key="Settings.Isp.Detect">Определить ISP</s:String>
+    <s:String x:Key="Settings.Isp.Detecting">Определяю…</s:String>
+    <s:String x:Key="Settings.Isp.NotDetected">Нажмите «Определить ISP», чтобы получить внешний профиль.</s:String>
+    <s:String x:Key="Settings.Isp.Ip">IP</s:String>
+    <s:String x:Key="Settings.Isp.Country">СТРАНА</s:String>
+    <s:String x:Key="Settings.Isp.Asn">ASN</s:String>
+    <s:String x:Key="Settings.Isp.Org">ПРОВАЙДЕР</s:String>
+    <s:String x:Key="Settings.Isp.CompatTag">COMPAT-ТЕГ</s:String>
+    <s:String x:Key="Settings.Isp.Error">Не удалось определить</s:String>
 
     <!-- Provider badge (Flowseal .bat vs native ZDefree) -->
     <s:String x:Key="Mode.Flowseal">Flowseal</s:String>

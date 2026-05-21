@@ -127,6 +127,12 @@
                                             <Run Text="Ping:" Foreground="{StaticResource TextSubtleBrush}" />
                                             <Run Text="{Binding PingMs, FallbackValue='—', TargetNullValue='—', StringFormat={}{0} ms}" />
                                         </TextBlock>
+                                        <TextBlock Style="{StaticResource Caption}" Margin="0,2,0,0"
+                                                   Visibility="{Binding Score, Converter={StaticResource CountToVis}}">
+                                            <Run Text="{DynamicResource Diagnostics.ConnTest.Score}" Foreground="{StaticResource TextSubtleBrush}" />
+                                            <Run Text=" " />
+                                            <Run Text="{Binding Score, StringFormat={}{0:F0}/80, Mode=OneWay}" FontWeight="SemiBold" />
+                                        </TextBlock>
                                         <TextBlock Text="{Binding Detail}" Margin="0,4,0,0" Style="{StaticResource Caption}"
                                                    Foreground="{StaticResource TextSubtleBrush}"
                                                    TextTrimming="CharacterEllipsis"

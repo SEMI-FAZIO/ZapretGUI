@@ -47,7 +47,11 @@ public sealed class ZapretController
     {
         if (IsZDefreeRoot(root))
         {
-            string lang = LocalizationService.Instance.Current == AppLanguage.Ru ? "ru" : "en";
+            // Read SettingsService directly (it's IO-only, no WPF dependency)
+            // rather than LocalizationService — the latter touches
+            // Application.Current.Resources and would fail outside a WPF app
+            // context (e.g. unit tests, smoke tools).
+            string lang = SettingsService.Instance.Current.Language == AppLanguage.Ru ? "ru" : "en";
             return new ZDefreeStrategyProvider(root, lang);
         }
         return new StrategyRepository(root);

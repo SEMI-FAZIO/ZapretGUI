@@ -77,6 +77,13 @@
     <s:String x:Key="Strategies.Run">Start</s:String>
     <s:String x:Key="Strategies.Install">Install as service</s:String>
     <s:String x:Key="Strategies.OpenFolder">Open folder</s:String>
+    <s:String x:Key="Strategies.AutoPick">Auto-pick best</s:String>
+    <s:String x:Key="Strategies.AutoPicking">Picking…</s:String>
+    <s:String x:Key="Strategies.AutoPick.Hint">Detect ISP and pick the highest-ranked strategy. ZDefree mode only.</s:String>
+    <s:String x:Key="Strategies.AutoPick.NoCandidates">No candidates found in INDEX.json.</s:String>
+    <s:String x:Key="Strategies.AutoPick.PickedMatched">Picked «{0}» — matched your ISP ({1}).</s:String>
+    <s:String x:Key="Strategies.AutoPick.PickedDefault">Picked «{0}» — no ISP match, default ranking.</s:String>
+    <s:String x:Key="Strategies.Reloaded">Strategies updated on disk: {0}</s:String>
 
     <!-- Lists -->
     <s:String x:Key="Lists.Title">Lists</s:String>
@@ -106,6 +113,7 @@
     <s:String x:Key="Diagnostics.ConnTest">Connection test</s:String>
     <s:String x:Key="Diagnostics.ConnTestHint">Probes discord.com, youtube.com, google.com and measures latency</s:String>
     <s:String x:Key="Diagnostics.Connect">Test connection</s:String>
+    <s:String x:Key="Diagnostics.ConnTest.Score">Score:</s:String>
 
     <!-- Logs -->
     <s:String x:Key="Logs.Title">winws.exe logs</s:String>
@@ -167,6 +175,19 @@
     <s:String x:Key="Conn.Status.Ok">Reachable</s:String>
     <s:String x:Key="Conn.Status.Fail">Unreachable</s:String>
     <s:String x:Key="Conn.Status.Pending">Probing…</s:String>
+
+    <!-- ISP detection (ZDefree.Core IspDetector via ipinfo.io) -->
+    <s:String x:Key="Settings.Isp">ISP fingerprint</s:String>
+    <s:String x:Key="Settings.Isp.Hint">Detect your external IP, country, ASN, and ISP via ipinfo.io. Used by auto-pick to match strategies against compat.tested_isps.</s:String>
+    <s:String x:Key="Settings.Isp.Detect">Detect ISP</s:String>
+    <s:String x:Key="Settings.Isp.Detecting">Detecting…</s:String>
+    <s:String x:Key="Settings.Isp.NotDetected">Press "Detect ISP" to fetch your external profile.</s:String>
+    <s:String x:Key="Settings.Isp.Ip">IP</s:String>
+    <s:String x:Key="Settings.Isp.Country">COUNTRY</s:String>
+    <s:String x:Key="Settings.Isp.Asn">ASN</s:String>
+    <s:String x:Key="Settings.Isp.Org">ORG</s:String>
+    <s:String x:Key="Settings.Isp.CompatTag">COMPAT TAG</s:String>
+    <s:String x:Key="Settings.Isp.Error">Detection failed</s:String>
 
     <!-- Provider badge (Flowseal .bat vs native ZDefree) -->
     <s:String x:Key="Mode.Flowseal">Flowseal</s:String>

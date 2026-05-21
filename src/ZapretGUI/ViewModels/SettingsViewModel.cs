@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using ZapretGUI.Helpers;
 using ZapretGUI.Services;
+using ZDefree.Core.Probing;
 
 namespace ZapretGUI.ViewModels;
 
@@ -103,6 +104,32 @@ public sealed class SettingsViewModel : BaseViewModel
     private bool _isBusy;
     public bool IsBusy { get => _isBusy; set { SetField(ref _isBusy, value); CommandManager.InvalidateRequerySuggested(); } }
 
+    // ---- ISP detection (uses ZDefree.Core.Probing.IspDetector) ----
+    private string? _ispIp;
+    public string? IspIp { get => _ispIp; private set => SetField(ref _ispIp, value); }
+
+    private string? _ispCountry;
+    public string? IspCountry { get => _ispCountry; private set => SetField(ref _ispCountry, value); }
+
+    private string? _ispAsn;
+    public string? IspAsn { get => _ispAsn; private set => SetField(ref _ispAsn, value); }
+
+    private string? _ispOrg;
+    public string? IspOrg { get => _ispOrg; private set => SetField(ref _ispOrg, value); }
+
+    private string? _ispCompatTag;
+    public string? IspCompatTag { get => _ispCompatTag; private set => SetField(ref _ispCompatTag, value); }
+
+    private string? _ispError;
+    public string? IspError { get => _ispError; private set => SetField(ref _ispError, value); }
+
+    private bool _isDetectingIsp;
+    public bool IsDetectingIsp { get => _isDetectingIsp; private set { SetField(ref _isDetectingIsp, value); CommandManager.InvalidateRequerySuggested(); } }
+
+    public bool HasIspInfo => !string.IsNullOrEmpty(IspIp);
+
+    public ICommand DetectIspCommand { get; private set; } = null!;
+
     public ICommand CheckUpdateCommand { get; }
     public ICommand OpenReleaseCommand { get; }
     public ICommand OpenRepoCommand { get; }
@@ -126,6 +153,32 @@ public sealed class SettingsViewModel : BaseViewModel
         ChangePathCommand  = new RelayCommand(_ => ChangePath());
         ExportBackupCommand = new RelayCommand(_ => ExportBackup());
         ImportBackupCommand = new RelayCommand(_ => ImportBackup());
+        DetectIspCommand    = new AsyncRelayCommand(DetectIspAsync, () => !IsDetectingIsp);
+    }
+
+    private async Task DetectIspAsync()
+    {
+        IsDetectingIsp = true;
+        IspError = null;
+        try
+        {
+            using var det = new IspDetector();
+            var info = await det.DetectAsync();
+            IspIp        = info.Ip;
+            IspCountry   = info.Country;
+            IspAsn       = info.Asn;
+            IspOrg       = info.OrgName;
+            IspCompatTag = info.CompatTag;
+            OnPropertyChanged(nameof(HasIspInfo));
+        }
+        catch (Exception ex)
+        {
+            IspError = ex.Message;
+        }
+        finally
+        {
+            IsDetectingIsp = false;
+        }
     }
 
     private void ExportBackup()
